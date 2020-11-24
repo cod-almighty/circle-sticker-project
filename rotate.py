@@ -2,9 +2,12 @@ from PIL import Image, ImageFont, ImageDraw, ImageTk
 import math as m
 import tkinter as tk
 
-ppmm = 7620 # pixels per mm (300 dpi * 25.4)
+dpi = 96
+dpcm = dpi * 2.54 # pixels per mm (300 dpi * 25.4)
+padx = 100
+pady = 100
 
-def process_fields():
+'''def process_fields():
     text = "cod almighty"#e1.get()
     fntsize = 72#int(e2.get())
     size = 200 #int(e3.get() * ppmm) # get size in mm, convert to pixels, and store as an int.
@@ -12,42 +15,51 @@ def process_fields():
     e1.delete(0, tk.END)
     e2.delete(0, tk.END)
     e3.delete(0, tk.END)
+'''
 
 def draw_text(text, fntsize, size):
-    font = ImageFont.truetype(r'/home/donnie/.fonts/Homework.otf', fntsize)
-    diameter = size
-    imgsize = (diameter + 25, diameter + 25)
-    radius = int((diameter + 25) / 2)
+    font = ImageFont.truetype(r'.fonts/fishfingers.ttf', fntsize)
+    diameter = size * dpcm
+    width, height = int(diameter + padx), int(diameter + pady)
+    imgsize = width, height
+    radius = int(diameter / 2)
     imgbase = Image.new('RGBA', imgsize, (255,255,255,255)) #create new image
     draw1 = ImageDraw.Draw(imgbase)
-    xcenter = int(radius)
-    ycenter = int(radius)
 
+    # Setup variables for positioning text
+    xcenter = int(width / 2)
+    ycenter = int(height / 2)
     offset = 3.3
-    px, py = 10, 10
     k = 0
     chardeg = 90
+    xadj = 25
 
     for c in text:
 
         k = k + 1
         # find x, y coords to place character on imgbase
-        xpos = int(xcenter + radius * m.cos(-((1*k*m.pi)/len(text)) + offset))
+        xpos = int(xcenter + radius * m.cos(-((1*k*m.pi)/len(text)) + offset)) - xadj
         ypos = int(ycenter - radius * m.sin(-((1*k*m.pi)/len(text)) + offset))
 
-        imgchar = Image.new('RGBA', (font.getsize(c)), (255,255,255,0)) # create temp canvas for character
+        imgchar_size = (font[1], width / len(text))
+
+        imgchar = Image.new('RGBA', imgchar_size, (255,255,255,0)) # create temp canvas for character
         d = ImageDraw.Draw(imgchar) # declare d as ImageDraw.Draw(imgchar)
         d.text((0, 0), text=c, font=font, fill=(0,0,0,255)) #Draw character on canvas
 
-        angle = 180/len(text)
-        imgchar = imgchar.rotate(chardeg, expand=1)
+        angle = 180/len(text) # divide number of characters by 180 degrees.
+        imgchar = imgchar.rotate(chardeg, resample = Image.BILINEAR, expand = 1) # Rotates the image by angle chardeg.
         chardeg = chardeg - angle
+        
 
         imgbase.paste(imgchar, (xpos, ypos), imgchar)
+    imgbase.show()
 
-        imgbase.save('base.png', 'png', dpi=(300,300))
+#draw_text(text, fntsize, size)
+draw_text("Happy 12th Birthday", 100, 2.4)
 
-## Start of GUI
+
+'''## Start of GUI
 root = tk.Tk()
 
 #canvas = tk.Canvas(root, width = 300, height = 300)
@@ -75,4 +87,4 @@ root.mainloop()
 
 #text = input("enter top line: ")
 #fntsize = int(input("enter font size: "))
-
+'''
